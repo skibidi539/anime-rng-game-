@@ -31,6 +31,7 @@ public:
     int maxHp, hp;
     int damage, skillDamage;
     int level;
+    int evolution;
     int price, gemPrice;
     string card;
     bool hasCard;
@@ -55,7 +56,7 @@ public:
 
         owned = o;
         level = 1;
-
+        evolution = 0;
         card = "None";
         hasCard = false;
 
@@ -103,27 +104,55 @@ bool code_keocon_used = false;
 // ================= DATA =================
 
 vector<Hero> heroes = {
+    // R
     Hero("R", "Tanjiro", 100, 15, 25, 100, 3),
     Hero("R", "Inosuke", 130, 20, 25, 110, 3),
     Hero("R", "Zenitsu", 120, 10, 25, 120, 4),
+
+    // SR
     Hero("SR", "Naruto", 120, 20, 35, 250, 8, true),
     Hero("SR", "Luffy", 140, 18, 40, 300, 10),
+    Hero("SR", "Rukia", 150, 22, 40, 350, 12),
+    Hero("SR", "Renji", 170, 25, 45, 400, 15),
+    Hero("SR", "Chad", 180, 30, 50, 450, 18),
+    Hero("SR", "Orihime", 200, 15, 60, 500, 20),
+
+    // SSR
     Hero("SSR", "Ichigo", 170, 25, 50, 500, 20),
     Hero("SSR", "Goku", 250, 40, 80, 1000, 50),
     Hero("SSR", "Usato", 260, 70, 120, 1200, 60),
     Hero("SSR", "Alucard", 270, 80, 150, 2000, 100),
     Hero("SSR", "Cosmic Garou", 300, 120, 200, 1500, 80),
+
+    Hero("SSR", "Uryu", 220, 35, 70, 800, 35),
+    Hero("SSR", "Toshiro", 240, 45, 90, 1100, 55),
+    Hero("SSR", "Grimmjow", 280, 75, 140, 2200, 110),
+    Hero("SSR", "Ulquiorra", 320, 100, 180, 3000, 140),
+
+    // S+
     Hero("S+", "Trunks", 350, 200, 250, 2000, 110),
     Hero("S+", "Black Goku", 450, 250, 300, 2500, 140),
+
+    Hero("S+", "Byakuya", 500, 280, 350, 3200, 180),
+    Hero("S+", "Kenpachi", 650, 350, 450, 4500, 250),
+    Hero("S+", "Yoruichi", 550, 320, 400, 3800, 220),
+    Hero("S+", "Urahara", 700, 420, 550, 6000, 300),
+    Hero("S+", "Shunsui", 850, 500, 650, 8000, 350),
+
+    // U
     Hero("U", "Saitama", 999, 999, 999, 9999, 200),
     Hero("U", "Sung Jin Woo", 1000, 1000, 1000, 10000, 200),
+
+    Hero("U", "Aizen", 1500, 1600, 2200, 15000, 350),
+    Hero("U", "Yamamoto", 2000, 2500, 3200, 18000, 450),
+    Hero("U", "Ichibe", 2800, 3500, 4500, 22000, 650),
+    Hero("U", "Yhwach", 5000, 7000, 10000, 50000, 1200),
+
     Hero("U", "Atomic", 220, 35, 70, 0, 0, false),
     Hero("U", "Rimuru", 1200, 1200, 1200, 10500, 250),
     Hero("U", "Gilgamesh", 2000, 2500, 3500, 11000, 300),
     Hero("U", "Dio", 3500, 5000, 7000, 25000, 800)
-    ///rank, tên, hp, dam thường, dam skill, giá vàng, giá gems
 };
-
 vector<Hero> enemies = {
     Hero("R", "Inosuke", 90, 12, 20, 0, 0),
     Hero("SR", "Sasuke", 120, 18, 35, 0, 0),
@@ -181,7 +210,7 @@ void saveGame() {
         f << h.gemPrice << "\n";
 
         f << h.level << "\n";
-
+        f << h.evolution << "\n";
         f << h.owned << "\n";
 
         f << h.card << "\n";
@@ -232,7 +261,7 @@ void loadGame() {
         int gemPrice;
 
         int level;
-
+        int evolution;
         bool owned;
         bool hasCard;
 
@@ -247,7 +276,7 @@ void loadGame() {
         f >> gemPrice;
 
         f >> level;
-
+        f >> evolution;
         f >> owned;
 
         f.ignore();
@@ -267,7 +296,7 @@ void loadGame() {
                 heroes[j].damage = damage;
                 heroes[j].skillDamage = skillDamage;
                 heroes[j].level = level;
-
+                heroes[j].evolution = evolution;
                 heroes[j].owned = owned;
 
                 heroes[j].card = card;
@@ -583,7 +612,8 @@ void upgradeHero() {
      << "[" << heroes[id].rank << "] "
      << resetColor()
      << heroes[id].name
-             << " | LV "
+        << " +" << heroes[id].evolution
+        << " | LV "
              << heroes[id].level
              << " | COST "
              << cost
@@ -751,9 +781,10 @@ void storyMode() {
      << "[" << heroes[list[i]].rank << "] "
      << resetColor()
      << heroes[list[i]].name
-             << " | LV "
-             << heroes[list[i]].level
-             << "\n";
+        << " +" << heroes[list[i]].evolution
+        << " | LV "
+                     << heroes[list[i]].level
+                     << "\n";
     }
 
     int c;
@@ -789,6 +820,22 @@ void resetGame()
     code_namphong_used = false;
     code_05082013_used = false;
     code_keocon_used = false;
+
+    for(auto &h : heroes)
+    {
+        h.level = 1;
+        h.evolution = 0;   // thêm dòng này
+
+        h.card = "None";
+        h.hasCard = false;
+
+        if(h.name == "Naruto")
+            h.owned = true;
+        else
+            h.owned = false;
+
+        h.hp = h.maxHp;
+    }
 
     remove("save.txt");
 
@@ -1040,6 +1087,99 @@ void exchangeShards() {
 
     cout << "====================\n";
 }
+void evolutionHero() {
+
+    vector<int> list;
+
+    for(int i = 0; i < heroes.size(); i++)
+        if(heroes[i].owned)
+            list.push_back(i);
+
+    if(list.empty()) {
+        cout << "No heroes owned!\n";
+        return;
+    }
+
+    line();
+    cout << "EVOLUTION\n";
+    line();
+
+    for(int i = 0; i < list.size(); i++) {
+
+        int id = list[i];
+
+        cout << i << ". "
+             << colorRank(heroes[id].rank)
+             << "[" << heroes[id].rank << "] "
+             << resetColor()
+             << heroes[id].name
+             << " | LV " << heroes[id].level
+             << " | EVO +" << heroes[id].evolution
+             << "\n";
+    }
+
+    int c;
+    cin >> c;
+
+    if(c < 0 || c >= list.size())
+        return;
+
+    int id = list[c];
+
+    int needLevel;
+    int needGems;
+
+    if(heroes[id].evolution == 0) {
+        needLevel = 10;
+        needGems = 100;
+    }
+    else if(heroes[id].evolution == 1) {
+        needLevel = 25;
+        needGems = 500;
+    }
+    else if(heroes[id].evolution == 2) {
+        needLevel = 50;
+        needGems = 2000;
+    }
+    else if(heroes[id].evolution == 3) {
+        needLevel = 100;
+        needGems = 10000;
+    }
+    else {
+        cout << "MAX EVOLUTION!\n";
+        return;
+    }
+
+    if(heroes[id].level < needLevel) {
+        cout << "Need Level "
+             << needLevel << "!\n";
+        return;
+    }
+
+    if(soulGems < needGems) {
+        cout << "Need "
+             << needGems
+             << " Soul Gems!\n";
+        return;
+    }
+
+    soulGems -= needGems;
+
+    heroes[id].evolution++;
+
+    heroes[id].maxHp += heroes[id].maxHp / 2;
+    heroes[id].damage += heroes[id].damage / 2;
+    heroes[id].skillDamage += heroes[id].skillDamage / 2;
+
+    heroes[id].hp = heroes[id].maxHp;
+
+    cout << "\n====================\n";
+    cout << heroes[id].name
+         << " EVOLVED TO +"
+         << heroes[id].evolution
+         << "!\n";
+    cout << "====================\n";
+}
 // ================= MAIN =================
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
@@ -1091,6 +1231,7 @@ int main() {
         cout << "\n8 Reset Game";
         cout << "\n9 Hero Chest";
         cout << "\n10 Shard Exchange";
+        cout << "\n11 Evolution";
         cout << "\n0 Quit";
         cout << "\n\nChoose: ";
 
@@ -1125,6 +1266,9 @@ int main() {
 
         else if(c == 10)
             exchangeShards();
+
+        else if(c == 11)
+            evolutionHero();
 
         else if(c == 0)
             break;
