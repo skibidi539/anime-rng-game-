@@ -90,8 +90,6 @@ int gold = 500;
 int soulGems = 0;
 int stage = 1;
 int dailyGemShop = 10;
-int cash = 0;
-int vipLevel = 0;
 int shardR = 0;
 int shardSR = 0;
 int shardSPlus = 0;
@@ -106,7 +104,6 @@ bool code_keocon_used = false;
 vector<Hero> heroes = {
     // R
     Hero("R", "Tanjiro", 100, 15, 25, 100, 3),
-    Hero("R", "Inosuke", 130, 20, 25, 110, 3),
     Hero("R", "Zenitsu", 120, 10, 25, 120, 4),
 
     // SR
@@ -183,8 +180,6 @@ void saveGame() {
     f << soulGems << "\n";
     f << stage << "\n";
     f << dailyGemShop << "\n";
-    f << cash << "\n";
-    f << vipLevel << "\n";
 
     f << shardR << "\n";
     f << shardSR << "\n";
@@ -232,9 +227,6 @@ void loadGame() {
     f >> soulGems;
     f >> stage;
     f >> dailyGemShop;
-    f >> cash;
-    f >> vipLevel;
-
     f >> shardR;
     f >> shardSR;
     f >> shardSPlus;
@@ -807,8 +799,6 @@ void resetGame()
     soulGems = 0;
     stage = 1;
     dailyGemShop = 10;
-    cash = 0;
-    vipLevel = 0;
 
     shardR = 0;
     shardSR = 0;
@@ -841,102 +831,6 @@ void resetGame()
 
     cout << "\n====================\n";
     cout << "GAME RESET COMPLETE!\n";
-    cout << "====================\n";
-}
-void topUpSystem() {
-
-    line();
-
-    cout << "TOP UP SYSTEM\n";
-
-    line();
-
-    cout << "Current Cash: "
-         << cash
-         << "\n";
-
-    cout << "VIP LEVEL: "
-         << vipLevel
-         << "\n";
-
-    cout << "\n1. 10K VND";
-    cout << "\n2. 20K VND";
-    cout << "\n3. 50K VND";
-    cout << "\n4. 100K VND";
-    cout << "\n0. Exit";
-
-    cout << "\n\nChoose: ";
-
-    int c;
-    cin >> c;
-
-    if(c == 0)
-        return;
-
-    if(c == 1) {
-
-        cash += 10000;
-
-        soulGems += 100;
-
-        gold += 5000;
-
-        cout << "\n+100 Gems";
-        cout << "\n+5000 Gold\n";
-    }
-    else if(c == 2) {
-
-        cash += 20000;
-
-        soulGems += 250;
-
-        gold += 12000;
-
-        cout << "\n+250 Gems";
-        cout << "\n+12000 Gold\n";
-    }
-    else if(c == 3) {
-
-        cash += 50000;
-
-        soulGems += 700;
-
-        gold += 30000;
-
-        cout << "\n+700 Gems";
-        cout << "\n+30000 Gold\n";
-    }
-    else if(c == 4) {
-
-        cash += 100000;
-
-        soulGems += 1500;
-
-        gold += 80000;
-
-        cout << "\n+1500 Gems";
-        cout << "\n+80000 Gold\n";
-    }
-
-    if(cash >= 100000)
-        vipLevel = 5;
-    else if(cash >= 50000)
-        vipLevel = 4;
-    else if(cash >= 20000)
-        vipLevel = 3;
-    else if(cash >= 10000)
-        vipLevel = 2;
-    else
-        vipLevel = 1;
-
-    cout << "\n====================\n";
-
-    cout << "TOP UP SUCCESS!\n";
-
-    cout << "VIP LEVEL: "
-         << vipLevel
-         << "\n";
-
     cout << "====================\n";
 }
 void openChest() {
@@ -1180,6 +1074,74 @@ void evolutionHero() {
          << "!\n";
     cout << "====================\n";
 }
+void shardShop()
+{
+    line();
+
+    cout << "SHARD SHOP\n";
+
+    line();
+
+    cout << "Gold: " << gold << "\n\n";
+
+    cout << "1. R Shard   (5 Gold)\n";
+    cout << "2. SR Shard  (20 Gold)\n";
+    cout << "3. SSR Shard (100 Gold)\n";
+    cout << "4. S+ Shard  (500 Gold)\n";
+    cout << "5. U Shard   (2500 Gold)\n";
+    cout << "0. Exit\n";
+
+    int c;
+    cin >> c;
+
+    int cost = 0;
+
+    switch(c)
+    {
+        case 1: cost = 5; break;
+        case 2: cost = 20; break;
+        case 3: cost = 100; break;
+        case 4: cost = 500; break;
+        case 5: cost = 2500; break;
+        default: return;
+    }
+
+    if(gold < cost)
+    {
+        cout << "Not enough gold!\n";
+        return;
+    }
+
+    cout << "Quantity: ";
+
+    int amount;
+    cin >> amount;
+
+    if(amount <= 0)
+        return;
+
+    int totalCost = cost * amount;
+
+    if(gold < totalCost)
+    {
+        cout << "Not enough gold!\n";
+        return;
+    }
+
+    gold -= totalCost;
+
+    if(c == 1) shardR += amount;
+    if(c == 2) shardSR += amount;
+    if(c == 3) shardSSR += amount;
+    if(c == 4) shardSPlus += amount;
+    if(c == 5) shardU += amount;
+
+    cout << "\n====================\n";
+    cout << "PURCHASE SUCCESS!\n";
+    cout << "Bought " << amount << " shards\n";
+    cout << "Cost: " << totalCost << " Gold\n";
+    cout << "====================\n";
+}
 // ================= MAIN =================
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
@@ -1227,11 +1189,11 @@ int main() {
         cout << "\n4 Upgrade";
         cout << "\n5 Save";
         cout << "\n6 Redeem";
-        cout << "\n7 Top Up";
-        cout << "\n8 Reset Game";
-        cout << "\n9 Hero Chest";
-        cout << "\n10 Shard Exchange";
-        cout << "\n11 Evolution";
+        cout << "\n7 Reset Game";
+        cout << "\n8 Hero Chest";
+        cout << "\n9 Shard Exchange";
+        cout << "\n10 Evolution";
+        cout << "\n11 Shard Shop";
         cout << "\n0 Quit";
         cout << "\n\nChoose: ";
 
@@ -1257,18 +1219,19 @@ int main() {
             redeemCode();
 
         else if(c == 7)
-            topUpSystem();
+            resetGame();
 
         else if(c == 8)
-            resetGame();
-        else if(c == 9)
             openChest();
 
-        else if(c == 10)
+        else if(c == 9)
             exchangeShards();
 
-        else if(c == 11)
+        else if(c == 10)
             evolutionHero();
+
+        else if(c == 11)
+            shardShop();
 
         else if(c == 0)
             break;
